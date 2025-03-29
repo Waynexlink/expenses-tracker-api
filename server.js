@@ -11,7 +11,6 @@ connectDB();
 
 app.use(express.json());
 //register middlewares
-app.use(errorHandler);
 
 //handling routes
 app.use("/api/auth", authRoute);
@@ -21,6 +20,9 @@ app.get("/", (req, res) => {
   res.send("welcome to expense tracker api");
 });
 
+//error-Handler middleware
+app.use(errorHandler);
+//startup express server
 app.listen(config.port, () => {
   console.log(`server has been started on ${config.port} `);
 });
