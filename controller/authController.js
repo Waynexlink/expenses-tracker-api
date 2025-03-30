@@ -41,5 +41,18 @@ const loginUser = async (req, res, next) => {
     next(error);
   }
 };
+const userData = (req, res) => {
+  try {
+    const { name, email } = req.user;
 
-module.exports = { registerUser, loginUser };
+    res.status(200).json({
+      status: "success",
+      message: "Successfully retrived User data",
+      data: { email, name },
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+module.exports = { registerUser, loginUser, userData };
