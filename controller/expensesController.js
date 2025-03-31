@@ -12,18 +12,20 @@ const getExpenses = async (req, res) => {
         lastMonth: Date.now(now.setDate(now.setDate() - 1)),
         last3Month: Date.now(now.setDate(now.setDate() - 3)),
       };
-      query.date ={$gte ,periods[period]}
-    }else if(from && to) {
-      query.date = {$gte:new Date(from), $lte:new Date(to)}
+      query.date = { $gte: periods[period] };
+    } else if (from && to) {
+      query.date = { $gte: new Date(from), $lte: new Date(to) };
     }
     //pagination
-    const skip = (parseInt(page)-1) *parseInt(limit)
-    
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
     //fetch Data
-    const expense = await Expense.find(query).sort({date:.1}).limit(parseInt(limit)).skip(skip)
-    
-    
-    //send response 
+    const expense = await Expense.find(query)
+      .sort({ date: 0.1 })
+      .limit(parseInt(limit))
+      .skip(skip);
+
+    //send response
     res.status(200).json({
       status: "success",
       total: totalExpenses,
