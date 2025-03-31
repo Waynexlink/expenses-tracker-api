@@ -15,7 +15,7 @@ const expenseSchema = new mongoose.Schema({
     type: String,
     requires: true,
     enum: [
-      ("Housing",
+      "Housing",
       "Food",
       "Transportation",
       "Health",
@@ -24,7 +24,7 @@ const expenseSchema = new mongoose.Schema({
       "Debt Payments",
       "Savings & Investments",
       "Personal Care",
-      "Miscellaneous"),
+      "Miscellaneous",
     ],
   },
   date: {
@@ -32,7 +32,7 @@ const expenseSchema = new mongoose.Schema({
     default: Date.now(),
   },
   user: {
-    type: mongoose.Schema.Type.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },

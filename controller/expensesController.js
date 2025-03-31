@@ -1,7 +1,8 @@
 const Expense = require("../models/expensesModel");
 const Expenses = require("../models/expensesModel");
+const AppError = require("../utils/appError");
 
-const getExpenses = async (req, res) => {
+const getExpenses = async (req, res, next) => {
   try {
     const { period, from, to, page = 1, limit = 10 } = req.query;
     const query = { user: req.user._id };
@@ -21,11 +22,21 @@ const getExpenses = async (req, res) => {
 
     //fetch Data
     const expense = await Expense.find(query)
-      .sort({ date: 0.1 })
+      .sort({ date: -1 })
       .limit(parseInt(limit))
       .skip(skip);
 
     //send response
+    const totalExpenses = expense.length;
+    if (!totalExpenses) {
+      return res.status(200).json({
+        status: "success",
+        total: totalExpenses,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        data: [],
+      });
+    }
     res.status(200).json({
       status: "success",
       total: totalExpenses,
@@ -37,25 +48,40 @@ const getExpenses = async (req, res) => {
     next(error);
   }
 };
-const createExpense = async (req, res) => {
+const createExpense = async (req, res, next) => {
   try {
     const { title, amount, categories, date } = req.body;
-    const expense = await expense.create({});
-    res
-      .status(201)
-      .json({ status: "success", Message: "Successfully created" });
+    if (!title || !amount || !categories || !date) {
+      return res.status(400).json({
+        status: "fail",
+        message:
+          "Please provide all required fields (title, amount, categories, date)",
+      });
+    }
+    const expense = await Expense.create({
+      title,
+      amount,
+      categories,
+      date,
+      user: req.user._id,
+    });
+    res.status(201).json({
+      status: "success",
+      Message: "Successfully created",
+      data: expense,
+    });
   } catch (error) {
     next(error);
   }
 };
 
-const getExpense = async (req, res) => {
+const getExpense = async (req, res, next) => {
   try {
     const expense = await Expenses.findOne({
       _id: req.params.id,
       user: req.user.id,
     });
-
+    if (!expense) return next(new AppError("Expense not found ", 404));
     res
       .status(200)
       .json({ status: "success", Message: "Expense retrived", expense });
@@ -63,7 +89,7 @@ const getExpense = async (req, res) => {
     next(error);
   }
 };
-const editExpense = async (req, res) => {
+const editExpense = async (req, res, next) => {
   try {
     const expense = await Expenses.findOne({
       _id: req.params.id,
@@ -79,7 +105,7 @@ const editExpense = async (req, res) => {
     next(error);
   }
 };
-const deleteExpense = async (req, res) => {
+const deleteExpense = async (req, res, next) => {
   try {
     const expense = await Expenses.findOne({
       _id: req.params.id,
@@ -96,4 +122,10 @@ const deleteExpense = async (req, res) => {
   }
 };
 
-module.exports = { deleteExpense, editExpense, getExpense, createExpense };
+module.exports = {
+  deleteExpense,
+  editExpense,
+  getExpense,
+  createExpense,
+  getExpenses,
+};
